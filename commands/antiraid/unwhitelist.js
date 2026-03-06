@@ -1,0 +1,35 @@
+const { SlashCommandBuilder, PermissionFlagsBits, EmbedBuilder } = require('discord.js');
+const { successEmbed, errorEmbed, warningEmbed } = require('../../utils/functions');
+const db = require('../../database/db');
+
+module.exports = {
+    data: new SlashCommandBuilder()
+        .setName('unwhitelist')
+        .setDescription('Retirer un utilisateur de la whitelist')
+        .addUserOption(option =>
+            option.setName('utilisateur')
+                .setDescription('L\'utilisateur à retirer de la whitelist')
+                .setRequired(true))
+        .setDefaultMemberPermissions(PermissionFlagsBits.Administrator),
+    cooldown: 3,
+    async execute(interaction, client) {
+        const user = interaction.options.getUser('utilisateur');
+
+        try {
+            const existing = db.isWhitelisted(interaction.guild.id, user.id);
+
+            if (!existing) {
+                const embed = warningEmbed('Non trouvé', `${user} n'est pas dans la whitelist.`);
+                return interaction.reply({ embeds: [embed], ephemeral: true });
+            }
+
+            db.removeFromWhitelist(interaction.guild.id, user.id);
+
+            const embed = successEmbed('Whitelist', `${user} a été retiré de la whitelist avec succès.`);
+            await interaction.reply({ embeds: [embed] });
+        } catch (error) {
+            const embed = errorEmbed('Erreur', 'Une erreur est survenue lors du retrait de la whitelist.');
+            await interaction.reply({ embeds: [embed], ephemeral: true });
+        }
+    },
+};
