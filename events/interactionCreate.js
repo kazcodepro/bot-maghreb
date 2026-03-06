@@ -6,21 +6,24 @@ module.exports = {
     name: 'interactionCreate',
     async execute(interaction, client) {
         if (interaction.isChatInputCommand()) {
-            const command = client.commands.get(interaction.commandName);
+            const subcommand = interaction.options.getSubcommand(false);
+            const key = subcommand ? `${interaction.commandName}:${subcommand}` : interaction.commandName;
+            const command = client.commands.get(key);
             if (!command) return;
 
+            const cooldownKey = key;
             const { cooldowns } = client;
-            if (!cooldowns.has(command.data.name)) cooldowns.set(command.data.name, new Collection());
+            if (!cooldowns.has(cooldownKey)) cooldowns.set(cooldownKey, new Collection());
 
             const now = Date.now();
-            const timestamps = cooldowns.get(command.data.name);
+            const timestamps = cooldowns.get(cooldownKey);
             const cooldownAmount = (command.cooldown || 3) * 1000;
 
             if (timestamps.has(interaction.user.id)) {
                 const expirationTime = timestamps.get(interaction.user.id) + cooldownAmount;
                 if (now < expirationTime) {
                     const timeLeft = ((expirationTime - now) / 1000).toFixed(1);
-                    return interaction.reply({ embeds: [errorEmbed(`Attends encore **${timeLeft}s** avant de réutiliser \`/${command.data.name}\`.`)], ephemeral: true });
+                    return interaction.reply({ embeds: [errorEmbed(`Attends encore **${timeLeft}s** avant de réutiliser cette commande.`)], ephemeral: true });
                 }
             }
 
@@ -30,7 +33,7 @@ module.exports = {
             try {
                 await command.execute(interaction, client);
             } catch (error) {
-                console.error(`Erreur commande ${command.data.name}:`, error);
+                console.error(`Erreur commande ${key}:`, error);
                 const reply = { embeds: [errorEmbed('Une erreur est survenue lors de l\'exécution de cette commande.')], ephemeral: true };
                 if (interaction.replied || interaction.deferred) await interaction.followUp(reply).catch(() => {});
                 else await interaction.reply(reply).catch(() => {});
