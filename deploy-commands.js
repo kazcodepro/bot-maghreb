@@ -126,9 +126,17 @@ const rest = new REST({ version: '10' }).setToken(process.env.TOKEN);
 
 (async () => {
     try {
-        console.log(`Déploiement de ${commands.length} commandes groupées (${commands.reduce((a, c) => a + (c.options?.length || 0), 0)} sous-commandes)...`);
-        await rest.put(Routes.applicationCommands(process.env.CLIENT_ID), { body: commands });
-        console.log('Commandes déployées avec succès !');
+        const total = commands.reduce((a, c) => a + (c.options?.length || 0), 0);
+
+        if (process.env.GUILD_ID) {
+            console.log(`Déploiement sur le serveur ${process.env.GUILD_ID} (${commands.length} catégories, ${total} sous-commandes)...`);
+            await rest.put(Routes.applicationGuildCommands(process.env.CLIENT_ID, process.env.GUILD_ID), { body: commands });
+            console.log('Commandes déployées instantanément sur le serveur !');
+        } else {
+            console.log(`Déploiement global (${commands.length} catégories, ${total} sous-commandes)...`);
+            await rest.put(Routes.applicationCommands(process.env.CLIENT_ID), { body: commands });
+            console.log('Commandes déployées globalement (peut prendre ~1h pour apparaître).');
+        }
     } catch (error) {
         console.error('Erreur:', error.rawError || error.message);
     }
