@@ -1,16 +1,19 @@
 const db = require('../database/db');
 const { errorEmbed } = require('../utils/functions');
+const { MessageAdapter } = require('../utils/adapter');
 const { Collection } = require('discord.js');
 
 const spamMap = new Collection();
+const prefix = '+';
 
 module.exports = {
     name: 'messageCreate',
-    async execute(message) {
+    async execute(message, client) {
         if (message.author.bot || !message.guild) return;
 
         const settings = db.getGuildSettings(message.guild.id);
 
+        // AFK check
         const afk = db.getAfk(message.guild.id, message.author.id);
         if (afk) {
             db.removeAfk(message.guild.id, message.author.id);
@@ -25,6 +28,44 @@ module.exports = {
             }
         }
 
+        // Prefix command handling
+        const usedPrefix = settings.prefix || prefix;
+        if (message.content.startsWith(usedPrefix)) {
+            const args = message.content.slice(usedPrefix.length).trim().split(/ +/);
+            const commandName = args.shift().toLowerCase();
+
+            const command = client.commands.get(commandName);
+            if (!command) return;
+
+            // Cooldown
+            if (!client.cooldowns.has(commandName)) client.cooldowns.set(commandName, new Collection());
+            const now = Date.now();
+            const timestamps = client.cooldowns.get(commandName);
+            const cooldownAmount = (command.cooldown || 3) * 1000;
+
+            if (timestamps.has(message.author.id)) {
+                const expirationTime = timestamps.get(message.author.id) + cooldownAmount;
+                if (now < expirationTime) {
+                    const timeLeft = ((expirationTime - now) / 1000).toFixed(1);
+                    return message.reply({ embeds: [errorEmbed(`Attends encore **${timeLeft}s** avant de réutiliser \`${usedPrefix}${commandName}\`.`)] });
+                }
+            }
+
+            timestamps.set(message.author.id, now);
+            setTimeout(() => timestamps.delete(message.author.id), cooldownAmount);
+
+            try {
+                const adapter = new MessageAdapter(message, args, command);
+                await command.execute(adapter, client);
+            } catch (error) {
+                console.error(`Erreur commande ${commandName}:`, error);
+                message.reply({ embeds: [errorEmbed('Une erreur est survenue lors de l\'exécution de cette commande.')] }).catch(() => {});
+            }
+
+            return;
+        }
+
+        // Automod (skip whitelisted/admins)
         if (db.isWhitelisted(message.guild.id, message.author.id) || message.member.permissions.has('Administrator')) return;
 
         if (settings.antispam_enabled) {
