@@ -36,7 +36,9 @@ module.exports = {
                     .setThumbnail(member.user.displayAvatarURL({ dynamic: true, size: 512 }))
                     .setImage(member.user.bannerURL({ dynamic: true, size: 512 }) || null)
                     .setTimestamp();
-                channel.send({ content: `${member}`, embeds: [embed] }).catch(() => {});
+                channel.send({ content: `${member}`, embeds: [embed] })
+                    .then(msg => setTimeout(() => msg.delete().catch(() => {}), 15000))
+                    .catch(() => {});
             }
         }
     },
