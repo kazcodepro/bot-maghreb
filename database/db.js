@@ -42,7 +42,7 @@ function save() {
 }
 
 const defaultSettings = {
-    prefix: '!',
+    prefix: '+',
     language: 'fr',
     log_channel: null,
     welcome_channel: null,

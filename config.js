@@ -28,5 +28,5 @@ module.exports = {
         shield: '🛡️',
         ticket: '🎫',
     },
-    defaultPrefix: '!',
+    defaultPrefix: '+',
 };
