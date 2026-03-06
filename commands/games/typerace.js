@@ -88,7 +88,7 @@ module.exports = {
             if (reason === 'time') {
                 const timeEmbed = new EmbedBuilder()
                     .setTitle('⌨️ Course de Frappe')
-                    .setDescription('⏰ Temps écoulé ! Réessayez avec `/typerace` !')
+                    .setDescription('⏰ Temps écoulé ! Réessayez avec `+typerace` !')
                     .setColor('#FF0000');
                 interaction.editReply({ embeds: [timeEmbed] }).catch(() => {});
             }

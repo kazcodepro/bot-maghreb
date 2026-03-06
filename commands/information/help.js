@@ -16,18 +16,21 @@ module.exports = {
         if (commandName) {
             const command = client.commands.get(commandName.toLowerCase());
             if (!command) {
-                return interaction.reply({ embeds: [new EmbedBuilder().setColor(config.colors.danger).setDescription(`${config.emojis.error} Commande \`${commandName}\` introuvable.`)], ephemeral: true });
+                return interaction.reply({ embeds: [new EmbedBuilder().setColor(config.colors.danger).setDescription(`${config.emojis.error} Commande \`${commandName}\` introuvable.`)] });
             }
 
             const embed = new EmbedBuilder()
                 .setColor(config.colors.primary)
-                .setTitle(`Commande : /${command.data.name}`)
+                .setTitle(`Commande : +${command.data.name}`)
                 .setDescription(command.data.description || 'Aucune description.')
                 .addFields({ name: 'Cooldown', value: `${command.cooldown || 3}s`, inline: true });
 
-            if (command.data.options?.length) {
-                const options = command.data.options.map(o => `\`${o.name}\` - ${o.description}`).join('\n');
-                embed.addFields({ name: 'Options', value: options });
+            const opts = command.data.toJSON().options || [];
+            if (opts.length) {
+                const usage = opts.map(o => o.required ? `<${o.name}>` : `[${o.name}]`).join(' ');
+                embed.addFields({ name: 'Utilisation', value: `\`+${command.data.name} ${usage}\`` });
+                const details = opts.map(o => `\`${o.name}\` - ${o.description}`).join('\n');
+                embed.addFields({ name: 'Options', value: details });
             }
 
             return interaction.reply({ embeds: [embed] });
@@ -53,7 +56,7 @@ module.exports = {
             'information': 'Information',
             'moderation': 'Modération',
             'vocal': 'Vocal',
-            'utilities': 'Utilitaires',
+            'utility': 'Utilitaires',
             'server': 'Gestion Serveur',
             'channels': 'Gestion Salons',
             'antiraid': 'Antiraid',
@@ -76,9 +79,9 @@ module.exports = {
         const mainEmbed = new EmbedBuilder()
             .setColor(config.colors.primary)
             .setTitle(`${config.emojis.info} Aide - ${client.user.username}`)
-            .setDescription('Sélectionnez une catégorie dans le menu ci-dessous pour voir les commandes disponibles.')
+            .setDescription('Sélectionnez une catégorie dans le menu ci-dessous pour voir les commandes disponibles.\n\nPréfixe : `+`')
             .setThumbnail(client.user.displayAvatarURL({ dynamic: true }))
-            .setFooter({ text: `${client.commands.size} commandes disponibles` });
+            .setFooter({ text: `${client.commands.size} commandes disponibles | Préfixe : +` });
 
         const options = Object.entries(categories)
             .filter(([, data]) => data.commands.length > 0)
@@ -100,7 +103,7 @@ module.exports = {
                 .addOptions(options),
         );
 
-        const reply = await interaction.reply({ embeds: [mainEmbed], components: [row], fetchReply: true });
+        const reply = await interaction.reply({ embeds: [mainEmbed], components: [row] });
 
         const collector = reply.createMessageComponentCollector({ time: 120000 });
 
@@ -116,8 +119,8 @@ module.exports = {
             const catEmbed = new EmbedBuilder()
                 .setColor(config.colors.primary)
                 .setTitle(`${cat.emoji} ${selected}`)
-                .setDescription(cat.commands.map(c => `\`/${c}\``).join(', ') || 'Aucune commande.')
-                .setFooter({ text: `${cat.commands.length} commande(s)` });
+                .setDescription(cat.commands.map(c => `\`+${c}\``).join(', ') || 'Aucune commande.')
+                .setFooter({ text: `${cat.commands.length} commande(s) | Préfixe : +` });
 
             await i.update({ embeds: [catEmbed], components: [row] });
         });

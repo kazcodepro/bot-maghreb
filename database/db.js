@@ -46,7 +46,7 @@ const defaultSettings = {
     language: 'fr',
     log_channel: null,
     welcome_channel: null,
-    welcome_message: 'Bienvenue {user} sur **{server}** ! Tu es le {membercount}ème membre !',
+    welcome_message: '**Bienvenue {user} sur Hyuga 🎐 !**\n\n🥢 Nous sommes maintenant {membercount} sur le serveur grâce à toi !\n🌸 /maghrebunited en statut pour la perm image.\n\n**🌷 Souhaite-lui la bienvenue dans le serveur !**',
     welcome_enabled: 0,
     leave_channel: null,
     leave_message: '{user} a quitté **{server}**. Nous sommes maintenant {membercount} membres.',

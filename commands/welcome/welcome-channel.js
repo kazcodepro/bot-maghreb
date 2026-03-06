@@ -16,11 +16,16 @@ module.exports = {
     async execute(interaction, client) {
         const channel = interaction.options.getChannel('salon');
 
+        if (!channel) {
+            return interaction.reply({ embeds: [errorEmbed('Utilisation : `+welcome-channel #salon`')] });
+        }
+
         try {
             db.updateGuildSetting(interaction.guild.id, 'welcome_channel', channel.id);
-            await interaction.reply({ embeds: [successEmbed(`Le salon de bienvenue a été défini sur ${channel}.`)] });
+            db.updateGuildSetting(interaction.guild.id, 'welcome_enabled', 1);
+            await interaction.reply({ embeds: [successEmbed(`Le salon de bienvenue a été défini sur ${channel}. Système activé !`)] });
         } catch {
-            await interaction.reply({ embeds: [errorEmbed('Une erreur est survenue lors de la configuration.')], ephemeral: true });
+            await interaction.reply({ embeds: [errorEmbed('Une erreur est survenue lors de la configuration.')] });
         }
     },
 };

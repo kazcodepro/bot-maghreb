@@ -21,7 +21,7 @@ module.exports = {
         }
 
         if (!giveaway.ended) {
-            return interaction.reply({ embeds: [errorEmbed('Ce giveaway n\'est pas encore terminé ! Utilisez `/gend` pour le terminer.')], ephemeral: true });
+            return interaction.reply({ embeds: [errorEmbed('Ce giveaway n\'est pas encore terminé ! Utilisez `+gend` pour le terminer.')], ephemeral: true });
         }
 
         const channel = interaction.guild.channels.cache.get(giveaway.channel_id);

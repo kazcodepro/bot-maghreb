@@ -32,12 +32,11 @@ module.exports = {
                 const message = replacePlaceholders(settings.welcome_message, member, member.guild);
                 const embed = new EmbedBuilder()
                     .setColor(0x57F287)
-                    .setTitle('👋 Bienvenue !')
                     .setDescription(message)
-                    .setThumbnail(member.user.displayAvatarURL({ dynamic: true, size: 256 }))
-                    .setFooter({ text: `Membre #${member.guild.memberCount}` })
+                    .setThumbnail(member.user.displayAvatarURL({ dynamic: true, size: 512 }))
+                    .setImage(member.user.bannerURL({ dynamic: true, size: 512 }) || null)
                     .setTimestamp();
-                channel.send({ embeds: [embed] }).catch(() => {});
+                channel.send({ content: `${member}`, embeds: [embed] }).catch(() => {});
             }
         }
     },

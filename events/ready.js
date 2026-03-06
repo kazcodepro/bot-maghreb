@@ -8,9 +8,9 @@ module.exports = {
         console.log(`📊 ${client.guilds.cache.size} serveurs | ${client.users.cache.size} utilisateurs | ${client.commands.size} commandes`);
 
         const activities = [
-            { name: `/help | ${client.guilds.cache.size} serveurs`, type: ActivityType.Watching },
+            { name: `+help | ${client.guilds.cache.size} serveurs`, type: ActivityType.Watching },
             { name: `${client.users.cache.size} utilisateurs`, type: ActivityType.Watching },
-            { name: `/help pour l'aide`, type: ActivityType.Playing },
+            { name: `+help pour l'aide`, type: ActivityType.Playing },
         ];
 
         let i = 0;

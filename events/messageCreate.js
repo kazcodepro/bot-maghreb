@@ -54,6 +54,16 @@ module.exports = {
             timestamps.set(message.author.id, now);
             setTimeout(() => timestamps.delete(message.author.id), cooldownAmount);
 
+            // Check required args
+            const cmdJson = command.data.toJSON();
+            const requiredOpts = (cmdJson.options || []).filter(o => o.required);
+            if (requiredOpts.length > 0 && args.length < requiredOpts.length) {
+                const usage = requiredOpts.map(o => `<${o.name}>`).join(' ');
+                const optionalOpts = (cmdJson.options || []).filter(o => !o.required);
+                const optUsage = optionalOpts.map(o => `[${o.name}]`).join(' ');
+                return message.reply({ embeds: [errorEmbed(`Utilisation : \`${usedPrefix}${commandName} ${usage}${optUsage ? ' ' + optUsage : ''}\``)] });
+            }
+
             try {
                 const adapter = new MessageAdapter(message, args, command);
                 await command.execute(adapter, client);
