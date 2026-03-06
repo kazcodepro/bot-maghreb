@@ -11,6 +11,7 @@ module.exports = {
                 .setRequired(false)),
     cooldown: 3,
     async execute(interaction, client) {
+        const prefix = '+';
         const commandName = interaction.options.getString('commande');
 
         if (commandName) {
@@ -19,18 +20,29 @@ module.exports = {
                 return interaction.reply({ embeds: [new EmbedBuilder().setColor(config.colors.danger).setDescription(`${config.emojis.error} Commande \`${commandName}\` introuvable.`)] });
             }
 
+            const cmdJson = command.data.toJSON();
+            const opts = cmdJson.options || [];
+            const required = opts.filter(o => o.required).map(o => `<${o.name}>`);
+            const optional = opts.filter(o => !o.required).map(o => `[${o.name}]`);
+            const usage = `${prefix}${command.data.name}${required.length || optional.length ? ` ${required.join(' ')} ${optional.join(' ')}` : ''}`.trim();
+
             const embed = new EmbedBuilder()
                 .setColor(config.colors.primary)
-                .setTitle(`Commande : +${command.data.name}`)
-                .setDescription(command.data.description || 'Aucune description.')
-                .addFields({ name: 'Cooldown', value: `${command.cooldown || 3}s`, inline: true });
+                .setTitle(`📘 Détail de commande`)
+                .setDescription([
+                    `### \`${prefix}${command.data.name}\``,
+                    command.data.description || 'Aucune description.',
+                ].join('\n'))
+                .addFields(
+                    { name: '⏱️ Cooldown', value: `\`${command.cooldown || 3}s\``, inline: true },
+                    { name: '🧩 Catégorie', value: `\`${command.category || 'information'}\``, inline: true },
+                    { name: '🛠️ Utilisation', value: `\`${usage}\`` },
+                )
+                .setFooter({ text: `${client.user.username} • Préfixe : ${prefix}` });
 
-            const opts = command.data.toJSON().options || [];
             if (opts.length) {
-                const usage = opts.map(o => o.required ? `<${o.name}>` : `[${o.name}]`).join(' ');
-                embed.addFields({ name: 'Utilisation', value: `\`+${command.data.name} ${usage}\`` });
-                const details = opts.map(o => `\`${o.name}\` - ${o.description}`).join('\n');
-                embed.addFields({ name: 'Options', value: details });
+                const details = opts.map(o => `• \`${o.name}\` — ${o.description}${o.required ? ' *(obligatoire)*' : ''}`).join('\n');
+                embed.addFields({ name: 'Paramètres', value: details.slice(0, 1024) });
             }
 
             return interaction.reply({ embeds: [embed] });
@@ -76,12 +88,33 @@ module.exports = {
             }
         });
 
+        const totalCommands = client.commands.size;
+        const totalCategories = Object.values(categories).filter(c => c.commands.length > 0).length;
+
         const mainEmbed = new EmbedBuilder()
             .setColor(config.colors.primary)
-            .setTitle(`${config.emojis.info} Aide - ${client.user.username}`)
-            .setDescription('Sélectionnez une catégorie dans le menu ci-dessous pour voir les commandes disponibles.\n\nPréfixe : `+`')
+            .setTitle('🏠 Menu d\'accueil')
+            .setDescription([
+                `Hey, bienvenue ${interaction.user} sur la page d'accueil **${client.user.username}** !`,
+                '',
+                '### • Informations',
+                `> • Préfixe : \`${prefix}\``,
+                `> • Commandes : \`${totalCommands}\``,
+                `> • Catégories : \`${totalCategories}\``,
+                '',
+                '### • Commandes utiles',
+                `> • \`${prefix}help\``,
+                `> • \`${prefix}help <commande>\``,
+                `> • \`${prefix}ping\``,
+                '',
+                '### • Fonctions à savoir',
+                '> • Les paramètres entre `<...>` sont obligatoires.',
+                '> • Les paramètres entre `[...]` sont facultatifs.',
+                '',
+                'Utilisez le menu ci-dessous pour parcourir les catégories du bot !',
+            ].join('\n'))
             .setThumbnail(client.user.displayAvatarURL({ dynamic: true }))
-            .setFooter({ text: `${client.commands.size} commandes disponibles | Préfixe : +` });
+            .setFooter({ text: `${client.user.username} • Préfixe : ${prefix}` });
 
         const options = Object.entries(categories)
             .filter(([, data]) => data.commands.length > 0)
@@ -99,7 +132,7 @@ module.exports = {
         const row = new ActionRowBuilder().addComponents(
             new StringSelectMenuBuilder()
                 .setCustomId('help_category')
-                .setPlaceholder('Choisir une catégorie...')
+                .setPlaceholder('Sélectionnez une catégorie à parcourir...')
                 .addOptions(options),
         );
 
@@ -119,8 +152,12 @@ module.exports = {
             const catEmbed = new EmbedBuilder()
                 .setColor(config.colors.primary)
                 .setTitle(`${cat.emoji} ${selected}`)
-                .setDescription(cat.commands.map(c => `\`+${c}\``).join(', ') || 'Aucune commande.')
-                .setFooter({ text: `${cat.commands.length} commande(s) | Préfixe : +` });
+                .setDescription(
+                    cat.commands.length
+                        ? cat.commands.map(c => `• \`${prefix}${c}\``).join('\n')
+                        : 'Aucune commande.'
+                )
+                .setFooter({ text: `${cat.commands.length} commande(s) • Préfixe : ${prefix}` });
 
             await i.update({ embeds: [catEmbed], components: [row] });
         });
