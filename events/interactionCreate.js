@@ -1,9 +1,76 @@
 const { EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle } = require('discord.js');
 const db = require('../database/db');
 
+function buildHelpCategories(client) {
+    const categories = {
+        'Information': { emoji: 'ℹ️', commands: [] },
+        'Modération': { emoji: '🛡️', commands: [] },
+        'Vocal': { emoji: '🔊', commands: [] },
+        'Utilitaires': { emoji: '🔧', commands: [] },
+        'Gestion Serveur': { emoji: '⚙️', commands: [] },
+        'Gestion Salons': { emoji: '📁', commands: [] },
+        'Antiraid': { emoji: '🛡️', commands: [] },
+        'Amusant': { emoji: '🎭', commands: [] },
+        'Jeux': { emoji: '🎮', commands: [] },
+        'Giveaway': { emoji: '🎉', commands: [] },
+        'Invitations': { emoji: '📩', commands: [] },
+        'Bienvenue': { emoji: '👋', commands: [] },
+        'Tickets': { emoji: '🎫', commands: [] },
+    };
+
+    const folderToCategory = {
+        information: 'Information',
+        moderation: 'Modération',
+        vocal: 'Vocal',
+        utility: 'Utilitaires',
+        server: 'Gestion Serveur',
+        channels: 'Gestion Salons',
+        antiraid: 'Antiraid',
+        fun: 'Amusant',
+        games: 'Jeux',
+        giveaway: 'Giveaway',
+        invites: 'Invitations',
+        welcome: 'Bienvenue',
+        tickets: 'Tickets',
+    };
+
+    client.commands.forEach(cmd => {
+        const folder = cmd.category || 'Information';
+        const cat = folderToCategory[folder] || folder;
+        if (categories[cat]) categories[cat].commands.push(cmd.data.name);
+    });
+
+    return categories;
+}
+
 module.exports = {
     name: 'interactionCreate',
     async execute(interaction, client) {
+        if (interaction.isStringSelectMenu() && interaction.customId.startsWith('help_category:')) {
+            const allowedUserId = interaction.customId.split(':')[1];
+            if (interaction.user.id !== allowedUserId) {
+                return interaction.reply({ content: 'Seul la personne qui a ouvert le menu peut l’utiliser.', ephemeral: true });
+            }
+
+            const categories = buildHelpCategories(client);
+            const selected = interaction.values[0];
+            const cat = categories[selected];
+            if (!cat) return interaction.reply({ content: 'Catégorie introuvable.', ephemeral: true });
+
+            const prefix = '+';
+            const catEmbed = new EmbedBuilder()
+                .setColor(0x5865F2)
+                .setTitle(`${cat.emoji} ${selected}`)
+                .setDescription(
+                    cat.commands.length
+                        ? cat.commands.map(c => `• \`${prefix}${c}\``).join('\n')
+                        : 'Aucune commande.'
+                )
+                .setFooter({ text: `${cat.commands.length} commande(s) • Préfixe : ${prefix}` });
+
+            return interaction.update({ embeds: [catEmbed] });
+        }
+
         if (!interaction.isButton()) return;
 
         if (interaction.customId === 'giveaway_join') {

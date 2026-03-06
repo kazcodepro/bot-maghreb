@@ -131,39 +131,11 @@ module.exports = {
 
         const row = new ActionRowBuilder().addComponents(
             new StringSelectMenuBuilder()
-                .setCustomId('help_category')
+                .setCustomId(`help_category:${interaction.user.id}`)
                 .setPlaceholder('Sélectionnez une catégorie à parcourir...')
                 .addOptions(options),
         );
 
-        const reply = await interaction.reply({ embeds: [mainEmbed], components: [row] });
-
-        const collector = reply.createMessageComponentCollector({ time: 120000 });
-
-        collector.on('collect', async i => {
-            if (i.user.id !== interaction.user.id) {
-                return i.reply({ content: `${config.emojis.error} Seul ${interaction.user} peut utiliser ce menu.`, ephemeral: true });
-            }
-
-            const selected = i.values[0];
-            const cat = categories[selected];
-            if (!cat) return;
-
-            const catEmbed = new EmbedBuilder()
-                .setColor(config.colors.primary)
-                .setTitle(`${cat.emoji} ${selected}`)
-                .setDescription(
-                    cat.commands.length
-                        ? cat.commands.map(c => `• \`${prefix}${c}\``).join('\n')
-                        : 'Aucune commande.'
-                )
-                .setFooter({ text: `${cat.commands.length} commande(s) • Préfixe : ${prefix}` });
-
-            await i.update({ embeds: [catEmbed], components: [row] });
-        });
-
-        collector.on('end', () => {
-            reply.edit({ components: [] }).catch(() => {});
-        });
+        await interaction.reply({ embeds: [mainEmbed], components: [row] });
     },
 };
