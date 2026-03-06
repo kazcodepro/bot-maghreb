@@ -9,6 +9,10 @@ module.exports = {
         .setDefaultMemberPermissions(PermissionFlagsBits.ManageGuild),
     cooldown: 5,
     async execute(interaction, client) {
+        if (!interaction.member.permissions.has(PermissionFlagsBits.ManageGuild)) {
+            return interaction.reply({ embeds: [errorEmbed('Tu n\'as pas la permission d\'utiliser cette commande.')] });
+        }
+
         const giveaways = db.getActiveGiveaways(interaction.guild.id);
 
         if (!giveaways || giveaways.length === 0) {

@@ -16,6 +16,10 @@ module.exports = {
         .setDefaultMemberPermissions(PermissionFlagsBits.ManageGuildExpressions),
     cooldown: 5,
     async execute(interaction, client) {
+        if (!interaction.member.permissions.has(PermissionFlagsBits.ManageGuild)) {
+            return interaction.reply({ embeds: [errorEmbed('Tu n\'as pas la permission d\'utiliser cette commande.')] });
+        }
+
         const emojiStr = interaction.options.getString('emoji');
         const customName = interaction.options.getString('nom');
 

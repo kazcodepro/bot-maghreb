@@ -23,6 +23,10 @@ module.exports = {
         .setDefaultMemberPermissions(PermissionFlagsBits.ManageChannels),
     cooldown: 5,
     async execute(interaction, client) {
+        if (!interaction.member.permissions.has(PermissionFlagsBits.ManageChannels)) {
+            return interaction.reply({ embeds: [errorEmbed('Tu n\'as pas la permission d\'utiliser cette commande.')] });
+        }
+
         const nom = interaction.options.getString('nom');
         const limite = interaction.options.getInteger('limite') || 0;
         const category = interaction.options.getChannel('catégorie');

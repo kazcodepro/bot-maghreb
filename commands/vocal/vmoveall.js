@@ -13,6 +13,10 @@ module.exports = {
         .setDefaultMemberPermissions(PermissionFlagsBits.MoveMembers),
     cooldown: 5,
     async execute(interaction, client) {
+        if (!interaction.member.permissions.has(PermissionFlagsBits.MoveMembers)) {
+            return interaction.reply({ embeds: [errorEmbed('Tu n\'as pas la permission d\'utiliser cette commande.')] });
+        }
+
         const targetChannel = interaction.options.getChannel('salon');
 
         if (!interaction.member.voice.channel) {

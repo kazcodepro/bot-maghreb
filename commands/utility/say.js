@@ -16,6 +16,10 @@ module.exports = {
         .setDefaultMemberPermissions(PermissionFlagsBits.ManageMessages),
     cooldown: 3,
     async execute(interaction, client) {
+        if (!interaction.member.permissions.has(PermissionFlagsBits.ManageMessages)) {
+            return interaction.reply({ embeds: [errorEmbed('Tu n\'as pas la permission d\'utiliser cette commande.')] });
+        }
+
         const message = interaction.options.getString('message');
         const channel = interaction.options.getChannel('salon') || interaction.channel;
 

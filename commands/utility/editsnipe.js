@@ -17,7 +17,7 @@ module.exports = {
         const editSnipes = client.editSnipes?.get(interaction.channel.id);
 
         if (!editSnipes || !editSnipes[index]) {
-            return interaction.reply({ embeds: [errorEmbed('Aucun message modifié trouvé.')], ephemeral: true });
+            return interaction.reply({ embeds: [errorEmbed('Aucun message modifié trouvé.')] });
         }
 
         const snipe = editSnipes[index];
@@ -28,10 +28,10 @@ module.exports = {
                 { name: 'Avant', value: truncate(snipe.oldContent || '*Vide*', 1024) },
                 { name: 'Après', value: truncate(snipe.newContent || '*Vide*', 1024) }
             )
-            .setAuthor({ name: snipe.author.tag, iconURL: snipe.author.displayAvatarURL() })
-            .setColor('#FFA500')
+            .setAuthor({ name: snipe.author })
+            .setColor(0xFFA500)
             .setFooter({ text: `Message #${index + 1}` })
-            .setTimestamp(snipe.editedAt);
+            .setTimestamp(snipe.timestamp);
 
         await interaction.reply({ embeds: [embed] });
     },

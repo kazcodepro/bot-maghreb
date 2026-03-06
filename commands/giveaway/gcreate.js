@@ -36,6 +36,10 @@ module.exports = {
                 .addChannelTypes(ChannelType.GuildText)),
     cooldown: 5,
     async execute(interaction, client) {
+        if (!interaction.member.permissions.has(PermissionFlagsBits.ManageGuild)) {
+            return interaction.reply({ embeds: [errorEmbed('Tu n\'as pas la permission d\'utiliser cette commande.')] });
+        }
+
         const prize = interaction.options.getString('prix');
         const durationStr = interaction.options.getString('durée');
         const winners = interaction.options.getInteger('gagnants');

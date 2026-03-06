@@ -13,6 +13,10 @@ module.exports = {
         .setDefaultMemberPermissions(PermissionFlagsBits.Administrator),
     cooldown: 5,
     async execute(interaction, client) {
+        if (!interaction.member.permissions.has(PermissionFlagsBits.Administrator)) {
+            return interaction.reply({ embeds: [errorEmbed('Tu n\'as pas la permission d\'utiliser cette commande.')] });
+        }
+
         const backupId = interaction.options.getString('id');
 
         try {

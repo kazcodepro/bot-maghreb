@@ -16,6 +16,10 @@ module.exports = {
         .setDefaultMemberPermissions(PermissionFlagsBits.ManageNicknames),
     cooldown: 3,
     async execute(interaction, client) {
+        if (!interaction.member.permissions.has(PermissionFlagsBits.ManageNicknames)) {
+            return interaction.reply({ embeds: [errorEmbed('Tu n\'as pas la permission d\'utiliser cette commande.')] });
+        }
+
         const user = interaction.options.getUser('utilisateur');
         const nickname = interaction.options.getString('surnom') || null;
         const member = await interaction.guild.members.fetch(user.id).catch(() => null);

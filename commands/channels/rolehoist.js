@@ -12,6 +12,10 @@ module.exports = {
         .setDefaultMemberPermissions(PermissionFlagsBits.ManageRoles),
     cooldown: 5,
     async execute(interaction, client) {
+        if (!interaction.member.permissions.has(PermissionFlagsBits.ManageRoles)) {
+            return interaction.reply({ embeds: [errorEmbed('Tu n\'as pas la permission d\'utiliser cette commande.')] });
+        }
+
         const role = interaction.options.getRole('role');
 
         if (role.position >= interaction.guild.members.me.roles.highest.position) {

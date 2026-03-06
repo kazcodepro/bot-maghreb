@@ -13,6 +13,10 @@ module.exports = {
         .setDefaultMemberPermissions(PermissionFlagsBits.ManageChannels),
     cooldown: 5,
     async execute(interaction, client) {
+        if (!interaction.member.permissions.has(PermissionFlagsBits.ManageChannels)) {
+            return interaction.reply({ embeds: [errorEmbed('Tu n\'as pas la permission d\'utiliser cette commande.')] });
+        }
+
         try {
             await interaction.channel.setTopic(interaction.options.getString('sujet'));
             await interaction.reply({ embeds: [successEmbed(`Le sujet du salon a été mis à jour.`)] });

@@ -13,6 +13,10 @@ module.exports = {
                 .setRequired(true)),
     cooldown: 3,
     async execute(interaction, client) {
+        if (!interaction.member.permissions.has(PermissionFlagsBits.ManageGuild)) {
+            return interaction.reply({ embeds: [errorEmbed('Tu n\'as pas la permission d\'utiliser cette commande.')] });
+        }
+
         const messageId = interaction.options.getString('id');
 
         const giveaway = db.getGiveawayByMessage(messageId);

@@ -12,6 +12,10 @@ module.exports = {
         .setDefaultMemberPermissions(PermissionFlagsBits.ManageChannels),
     cooldown: 5,
     async execute(interaction, client) {
+        if (!interaction.member.permissions.has(PermissionFlagsBits.ManageChannels)) {
+            return interaction.reply({ embeds: [errorEmbed('Tu n\'as pas la permission d\'utiliser cette commande.')] });
+        }
+
         if (!interaction.member.voice.channel) {
             return interaction.reply({ embeds: [errorEmbed('Vous devez être dans un salon vocal.')], ephemeral: true });
         }

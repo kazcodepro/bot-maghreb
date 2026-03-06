@@ -20,6 +20,10 @@ module.exports = {
         .setDefaultMemberPermissions(PermissionFlagsBits.ManageRoles),
     cooldown: 5,
     async execute(interaction, client) {
+        if (!interaction.member.permissions.has(PermissionFlagsBits.ManageRoles)) {
+            return interaction.reply({ embeds: [errorEmbed('Tu n\'as pas la permission d\'utiliser cette commande.')] });
+        }
+
         const nom = interaction.options.getString('nom');
         const couleur = interaction.options.getString('couleur') || '#99AAB5';
         const hoist = interaction.options.getBoolean('hoist') || false;

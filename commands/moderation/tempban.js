@@ -22,6 +22,10 @@ module.exports = {
         .setDefaultMemberPermissions(PermissionFlagsBits.BanMembers),
     cooldown: 3,
     async execute(interaction, client) {
+        if (!interaction.member.permissions.has(PermissionFlagsBits.BanMembers)) {
+            return interaction.reply({ embeds: [errorEmbed('Tu n\'as pas la permission d\'utiliser cette commande.')] });
+        }
+
         const user = interaction.options.getUser('utilisateur');
         const durationStr = interaction.options.getString('durée');
         const reason = interaction.options.getString('raison') || 'Aucune raison';

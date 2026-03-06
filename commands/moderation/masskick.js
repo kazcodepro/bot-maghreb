@@ -13,6 +13,10 @@ module.exports = {
         .setDefaultMemberPermissions(PermissionFlagsBits.Administrator),
     cooldown: 10,
     async execute(interaction, client) {
+        if (!interaction.member.permissions.has(PermissionFlagsBits.KickMembers)) {
+            return interaction.reply({ embeds: [errorEmbed('Tu n\'as pas la permission d\'utiliser cette commande.')] });
+        }
+
         const input = interaction.options.getString('utilisateurs');
         const userIds = input.split(/\s+/).filter(id => /^\d{17,19}$/.test(id));
 

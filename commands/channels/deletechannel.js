@@ -12,6 +12,10 @@ module.exports = {
         .setDefaultMemberPermissions(PermissionFlagsBits.ManageChannels),
     cooldown: 5,
     async execute(interaction, client) {
+        if (!interaction.member.permissions.has(PermissionFlagsBits.ManageChannels)) {
+            return interaction.reply({ embeds: [errorEmbed('Tu n\'as pas la permission d\'utiliser cette commande.')] });
+        }
+
         const channel = interaction.options.getChannel('salon');
 
         const row = new ActionRowBuilder().addComponents(
@@ -31,7 +35,7 @@ module.exports = {
             .setColor('#FF0000')
             .setTimestamp();
 
-        const reply = await interaction.reply({ embeds: [embed], components: [row], fetchReply: true });
+        const reply = await interaction.reply({ embeds: [embed], components: [row] });
 
         const filter = (i) => i.user.id === interaction.user.id;
 

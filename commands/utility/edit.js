@@ -1,4 +1,4 @@
-const { SlashCommandBuilder } = require('discord.js');
+const { SlashCommandBuilder, PermissionFlagsBits } = require('discord.js');
 const { successEmbed, errorEmbed } = require('../../utils/functions');
 
 module.exports = {
@@ -15,6 +15,10 @@ module.exports = {
                 .setRequired(true)),
     cooldown: 3,
     async execute(interaction, client) {
+        if (!interaction.member.permissions.has(PermissionFlagsBits.ManageMessages)) {
+            return interaction.reply({ embeds: [errorEmbed('Tu n\'as pas la permission d\'utiliser cette commande.')] });
+        }
+
         const messageId = interaction.options.getString('message_id');
         const contenu = interaction.options.getString('contenu');
 

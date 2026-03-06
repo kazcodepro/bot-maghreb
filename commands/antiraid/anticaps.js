@@ -23,6 +23,10 @@ module.exports = {
         .setDefaultMemberPermissions(PermissionFlagsBits.Administrator),
     cooldown: 3,
     async execute(interaction, client) {
+        if (!interaction.member.permissions.has(PermissionFlagsBits.Administrator)) {
+            return interaction.reply({ embeds: [errorEmbed('Tu n\'as pas la permission d\'utiliser cette commande.')] });
+        }
+
         const action = interaction.options.getString('action');
         const pourcentage = interaction.options.getInteger('pourcentage');
         const enabled = action === 'activer' ? 1 : 0;

@@ -17,7 +17,7 @@ module.exports = {
         const snipes = client.snipes?.get(interaction.channel.id);
 
         if (!snipes || !snipes[index]) {
-            return interaction.reply({ embeds: [errorEmbed('Aucun message supprimé trouvé.')], ephemeral: true });
+            return interaction.reply({ embeds: [errorEmbed('Aucun message supprimé trouvé.')] });
         }
 
         const snipe = snipes[index];
@@ -25,13 +25,13 @@ module.exports = {
         const embed = new EmbedBuilder()
             .setTitle('🗑️ Message supprimé')
             .setDescription(truncate(snipe.content || '*Pas de contenu texte*', 2000))
-            .setAuthor({ name: snipe.author.tag, iconURL: snipe.author.displayAvatarURL() })
-            .setColor('#FF0000')
+            .setAuthor({ name: snipe.author })
+            .setColor(0xFF0000)
             .setFooter({ text: `Message #${index + 1}` })
-            .setTimestamp(snipe.createdAt);
+            .setTimestamp(snipe.timestamp);
 
-        if (snipe.attachments?.first()) {
-            embed.setImage(snipe.attachments.first().proxyURL);
+        if (snipe.attachment) {
+            embed.setImage(snipe.attachment);
         }
 
         await interaction.reply({ embeds: [embed] });
